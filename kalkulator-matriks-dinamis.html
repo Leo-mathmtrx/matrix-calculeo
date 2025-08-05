@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulator Matriks Dinamis</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-spacing: 5px;
+    }
+    table input {
+      width: 50px;
+      text-align: center;
+    }
+    .matrix {
+      display: inline-block;
+      margin: 10px;
+      vertical-align: top;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    select, button {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Kalkulator Matriks Dinamis</h2>
+
+<label>Pilih ukuran matriks:
+  <select id="size" onchange="generateInputs()">
+    <option value="2">2 x 2</option>
+    <option value="3">3 x 3</option>
+    <option value="4">4 x 4</option>
+  </select>
+</label>
+
+<div class="matrix">
+  <h3>Matriks A</h3>
+  <div id="matrixA"></div>
+</div>
+
+<div class="matrix">
+  <h3>Matriks B</h3>
+  <div id="matrixB"></div>
+</div>
+
+<br>
+<select id="operation">
+  <option value="add">Jumlah</option>
+  <option value="subtract">Kurang</option>
+  <option value="multiply">Kali</option>
+</select>
+
+<button onclick="calculate()">Hitung</button>
+
+<div id="result"></div>
+
+<script>
+  function generateInputs() {
+    const size = parseInt(document.getElementById("size").value);
+    const matrixA = document.getElementById("matrixA");
+    const matrixB = document.getElementById("matrixB");
+
+    matrixA.innerHTML = generateTable('a', size);
+    matrixB.innerHTML = generateTable('b', size);
+  }
+
+  function generateTable(prefix, size) {
+    let html = '<table>';
+    for (let i = 0; i < size; i++) {
+      html += '<tr>';
+      for (let j = 0; j < size; j++) {
+        html += `<td><input type="number" id="${prefix}${i}${j}" /></td>';
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+    return html;
+  }
+
+  function getMatrix(prefix, size) {
+    let matrix = [];
+    for (let i = 0; i < size; i++) {
+      let row = [];
+      for (let j = 0; j < size; j++) {
+        let val = parseFloat(document.getElementById(`${prefix}${i}${j}`).value) || 0;
+        row.push(val);
+      }
+      matrix.push(row);
+    }
+    return matrix;
+  }
+
+  function calculate() {
+    const size = parseInt(document.getElementById("size").value);
+    const A = getMatrix('a', size);
+    const B = getMatrix('b', size);
+    const op = document.getElementById("operation").value;
+    let C = [];
+
+    if (op === 'add' || op === 'subtract') {
+      for (let i = 0; i < size; i++) {
+        let row = [];
+        for (let j = 0; j < size; j++) {
+          row.push(op === 'add' ? A[i][j] + B[i][j] : A[i][j] - B[i][j]);
+        }
+        C.push(row);
+      }
+    } else if (op === 'multiply') {
+      for (let i = 0; i < size; i++) {
+        let row = [];
+        for (let j = 0; j < size; j++) {
+          let sum = 0;
+          for (let k = 0; k < size; k++) {
+            sum += A[i][k] * B[k][j];
+          }
+          row.push(sum);
+        }
+        C.push(row);
+      }
+    }
+
+    displayResult(C);
+  }
+
+  function displayResult(matrix) {
+    let html = '<h3>Hasil:</h3><table>';
+    matrix.forEach(row => {
+      html += '<tr>' + row.map(val => `<td>${val}</td>`).join('') + '</tr>';
+    });
+    html += '</table>';
+    document.getElementById("result").innerHTML = html;
+  }
+
+  window.onload = generateInputs;
+</script>
+
+</body>
+</html>
